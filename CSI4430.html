@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Map</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+
+    #map {
+      height: 400px;
+      width: 80%;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #weatherBox {
+      padding: 10px;
+      border-radius: 8px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    #weatherInfo {
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div id="weatherBox">
+    <div id="placeName"></div>
+    <div id="temperature"></div>
+  </div>
+
+  <script>
+    let map;
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 0, lng: 0 },
+        zoom: 2
+      });
+
+      map.addListener("click", (event) => {
+        getWeather(event.latLng.lat(), event.latLng.lng());
+      });
+    }
+
+    async function getWeather(latitude, longitude) {
+      const apiKey = "b472969fc1be3f3ebafc0fe48343b532";
+      const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=imperial`;
+
+      try {
+        const response = await fetch(weatherApiUrl);
+        const data = await response.json();
+
+        if (data.name) {
+          const temperatureFahrenheit = data.main.temp;
+          const placeName = data.name;
+          const placeInfo = `${placeName}: ${temperatureFahrenheit}°F`;
+
+          document.getElementById("placeName").textContent = placeName;
+          document.getElementById("temperature").textContent = `Temperature: ${temperatureFahrenheit}°F`;
+          document.getElementById("weatherBox").style.display = "block";
+        } else {
+          throw new Error("Failed to retrieve weather data.");
+        }
+      } catch (error) {
+        console.error("Error fetching weather data:", error);
+        alert("Failed to fetch weather data. Please try again.");
+      }
+    }
+  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+</body>
+</html>
